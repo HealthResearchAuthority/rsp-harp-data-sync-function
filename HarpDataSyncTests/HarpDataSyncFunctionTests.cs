@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -22,15 +23,15 @@ public class HarpDataSyncFunctionTests
 
         var function = new HarpDataSyncFunction(loggerMock.Object, serviceMock.Object);
 
-        var contextMock = new Mock<FunctionContext>();
-        var request = new FakeHttpRequestData(contextMock.Object, new Uri("http://localhost/api"));
+        var timerInfo = new TimerInfo();
 
         // Act
-        var response = await function.Run(request);
+        var result = await function.Run(timerInfo);
 
         // Assert
-        var fakeResponse = Assert.IsType<FakeHttpResponseData>(response);
-        Assert.Equal(HttpStatusCode.OK, fakeResponse.StatusCode);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal("Iras Projects Data Sync Succeeded", okResult.Value);
 
         loggerMock.Verify(
             x => x.Log(
@@ -52,15 +53,14 @@ public class HarpDataSyncFunctionTests
 
         var function = new HarpDataSyncFunction(loggerMock.Object, serviceMock.Object);
 
-        var contextMock = new Mock<FunctionContext>();
-        var request = new FakeHttpRequestData(contextMock.Object, new Uri("http://localhost/api"));
+        var timerInfo = new TimerInfo();
 
         // Act
-        var response = await function.Run(request);
+        var result = await function.Run(timerInfo);
 
         // Assert
-        var fakeResponse = Assert.IsType<FakeHttpResponseData>(response);
-        Assert.Equal(HttpStatusCode.InternalServerError, fakeResponse.StatusCode);
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(500, objectResult.StatusCode);
 
         loggerMock.Verify(
             x => x.Log(
@@ -70,63 +70,5 @@ public class HarpDataSyncFunctionTests
                 null,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
-    }
-}
-
-public class FakeHttpResponseData : HttpResponseData
-{
-    private readonly MemoryStream _bodyStream = new MemoryStream();
-
-    public FakeHttpResponseData(FunctionContext req, HttpStatusCode statusCode) : base(req)
-    {
-        StatusCode = statusCode;
-        Headers = new HttpHeadersCollection();
-        Body = _bodyStream;
-    }
-
-    public override HttpStatusCode StatusCode { get; set; }
-    public override HttpHeadersCollection Headers { get; set; }
-    public override Stream Body { get; set; }
-    public override HttpCookies Cookies => null;
-
-    public async Task WriteStringAsync(string value)
-    {
-        var bytes = Encoding.UTF8.GetBytes(value);
-        await Body.WriteAsync(bytes, 0, bytes.Length);
-        Body.Position = 0;
-    }
-
-    public string GetBodyAsString()
-    {
-        Body.Position = 0;
-        return new StreamReader(Body).ReadToEnd();
-    }
-}
-
-public class FakeHttpRequestData : HttpRequestData
-{
-    public FakeHttpRequestData(FunctionContext context, Uri uri, HttpStatusCode statusCode = HttpStatusCode.OK) : base(context)
-    {
-        Url = uri;
-        Headers = new HttpHeadersCollection();
-        Body = new MemoryStream();
-        StatusCode = statusCode;
-    }
-
-    public override Stream Body { get; }
-    public override HttpHeadersCollection Headers { get; }
-    public override Uri Url { get; }
-
-    public override string Method => "GET";
-
-    public HttpStatusCode StatusCode { get; set; }
-
-    public override IEnumerable<ClaimsIdentity> Identities => Array.Empty<ClaimsIdentity>();
-
-    public override IReadOnlyCollection<IHttpCookie> Cookies => Array.Empty<IHttpCookie>();
-
-    public override HttpResponseData CreateResponse()
-    {
-        return new FakeHttpResponseData(FunctionContext, StatusCode);
     }
 }

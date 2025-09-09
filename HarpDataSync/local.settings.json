@@ -2,7 +2,8 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "SyncTimerSchedule": "0 0 1 * * *"
   },
   "ConnectionStrings": {
     "OldIrasConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=TestServiceOldIras;Trusted_Connection=True;",
