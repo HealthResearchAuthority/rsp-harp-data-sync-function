@@ -1,0 +1,179 @@
+name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
+
+pool:
+  vmImage: "Ubuntu-latest"
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - HarpDataSync/**
+
+parameters:
+  - name: env
+    displayName: Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - systemtest_manual
+      - systemtest_auto
+      - uat
+      - pre_prod
+      - production
+
+  - name: devops_library_branch
+    displayName: DevOps Library Branch
+    type: string
+    default: main
+
+  - name: run_sonarcloud_analysis
+    displayName: Run Sonar Cloud Analysis
+    type: boolean
+    default: true
+
+  - name: skip_deployment
+    displayName: Skip Deployment
+    type: boolean
+    default: true
+
+variables:
+  - name: vstsFeed
+    value: "0e030eb0-cb72-4f42-b99a-26e6544271c3/0a3e0ad2-23b6-4e8b-ae12-cd6d01fe97e7"
+  - name: solution
+    value: "**/*.sln"
+  - name: project
+    value: "**/*.csproj"
+  - name: projectForContainerBuild
+    value: "HarpDataSync.csproj"
+  - name: buildConfiguration
+    value: "Release"
+  - name: service_connection
+    ${{ if eq(parameters.env, 'dev') }}:
+      value: "ARM Dev Connection New"
+    ${{ if eq(parameters.env, 'systemtest_auto') }}:
+      value: "ARM Automated Test Connection"  
+    ${{ if eq(parameters.env, 'systemtest_manual') }}:
+      value: "ARM Manual Test Connection"
+
+  - name: appSettingsJson
+    value: |
+      [
+        {
+          "name": "AppSettings__AzureAppConfiguration__Endpoint",
+          "value": "$(AppConfigurationEndpoint)",
+          "slotSetting": false
+        },
+        {
+          "name": "AppSettings__AzureAppConfiguration__IdentityClientID",
+          "value": "$(AppConfigurationClientID)",
+          "slotSetting": false
+        },
+        {
+          "name": "HARPSyncTimerSchedule",
+          "value": "$(HARPSyncTimerSchedule)",
+          "slotSetting": false
+        }
+      ]
+
+resources:
+  repositories:
+    - repository: library
+      type: github
+      name: 'HealthResearchAuthority/rsp-azure-devops-library'
+      endpoint: AzureDevOpsToGitHubConnection
+      ref: ${{ parameters.devops_library_branch }}
+
+    - repository: service_defaults
+      type: github
+      name: 'HealthResearchAuthority/rsp-service-defaults'
+      endpoint: AzureDevOpsToGitHubConnection
+      ref: main
+
+stages:
+  - stage: Build
+    displayName: "Build Stage"
+    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'true'))
+    jobs:
+      - template: jobs/build.yaml@library
+        parameters:
+          run_github_security_scan: false
+          sonar_project_key: HealthResearchAuthority_rsp-harp-data-sync-function
+          sonar_project_name: rsp-harp-data-sync-function
+          run_sonarcloud_analysis: ${{ parameters.run_sonarcloud_analysis }}
+          install_aspire: true
+          service_defaults_repo: service_defaults
+
+  - stage: dev
+    displayName: "Deploy to Development"
+    variables:
+      - group: 'DevelopmentEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-dev"
+    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'false'))
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          install_aspire: true
+          service_defaults_repo: service_defaults
+          appSettings: $(appSettingsJson)
+ 
+  - stage: systemtest_auto
+    variables: 
+      - group: 'STAutoEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-dev-automationtest"
+    condition: eq('${{ parameters.env }}', 'systemtest_auto')
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          install_aspire: true
+          service_defaults_repo: service_defaults
+          appSettings: $(appSettingsJson)
+
+  - stage: systemtest_manual
+    variables: 
+      - group: 'STManualEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-dev-manualtest"
+    condition: eq('${{ parameters.env }}', 'systemtest_manual')
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          install_aspire: true
+          service_defaults_repo: service_defaults
+          appSettings: $(appSettingsJson)
+
+  - stage: system_integration_test
+    displayName: "System Integration Test"
+    jobs:
+      - job: IntegrationTest
+        steps:
+          - script: |
+              echo 'env: system integration test'
+
+  - stage: uat
+    displayName: "User Acceptance Testing"
+    jobs:
+      - job: UAT
+        steps:
+          - script: |
+              echo 'env: uat'
+
+  - stage: pre_prod
+    displayName: "Pre-Production"
+    jobs:
+      - job: PreProd
+        steps:
+          - script: |
+              echo 'env: pre prod'
+
+  - stage: production
+    displayName: "Production"
+    jobs:
+      - job: Production
+        steps:
+          - script: |
+              echo 'env: production'

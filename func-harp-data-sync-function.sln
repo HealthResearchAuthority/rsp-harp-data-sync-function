@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36109.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarpDataSync", "HarpDataSync\HarpDataSync.csproj", "{1A97DEE0-29CF-4C40-9C00-4D8FAEA9E4E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarpDataSyncTests", "HarpDataSyncTests\HarpDataSyncTests.csproj", "{78F40673-88FC-4406-A3F8-E01FE8F410C9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		func-harp-data-sync.azure-pipelines.yaml = func-harp-data-sync.azure-pipelines.yaml
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Functions", "Functions", "{6B804A30-2B32-49EF-81A5-92C66856BE26}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{636B948D-CD1E-40C0-A82D-12C3A778F11E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A97DEE0-29CF-4C40-9C00-4D8FAEA9E4E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A97DEE0-29CF-4C40-9C00-4D8FAEA9E4E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A97DEE0-29CF-4C40-9C00-4D8FAEA9E4E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A97DEE0-29CF-4C40-9C00-4D8FAEA9E4E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78F40673-88FC-4406-A3F8-E01FE8F410C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78F40673-88FC-4406-A3F8-E01FE8F410C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78F40673-88FC-4406-A3F8-E01FE8F410C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78F40673-88FC-4406-A3F8-E01FE8F410C9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1A97DEE0-29CF-4C40-9C00-4D8FAEA9E4E2} = {6B804A30-2B32-49EF-81A5-92C66856BE26}
+		{78F40673-88FC-4406-A3F8-E01FE8F410C9} = {636B948D-CD1E-40C0-A82D-12C3A778F11E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40A13882-AF46-49F9-B030-063966B11D2D}
+	EndGlobalSection
+EndGlobal
