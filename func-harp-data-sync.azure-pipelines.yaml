@@ -1,7 +1,7 @@
 name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
 pool:
-  vmImage: "Ubuntu-latest"
+  name: "rsp-manageddevopspool"
 
 trigger:
   branches:
@@ -12,13 +12,6 @@ trigger:
       - HarpDataSync/**
 
 parameters:
-  - name: env
-    displayName: Environment
-    type: string
-    default: DataWarehouse
-    values:
-      - DataWarehouse
-
   - name: devops_library_branch
     displayName: DevOps Library Branch
     type: string
@@ -85,7 +78,7 @@ resources:
 stages:
   - stage: Build
     displayName: "Build Stage"
-    condition: and(eq('${{ parameters.env }}', 'DataWarehouse'), eq('${{ parameters.skip_deployment }}', 'true'))
+    condition: eq('${{ parameters.skip_deployment }}', 'true')
     jobs:
       - template: jobs/build.yaml@library
         parameters:
@@ -101,8 +94,8 @@ stages:
     variables:
       - group: 'DataWarehouseEnvironment'
       - name: FunctionAppName
-        value: "func-harp-data-sync-dev"
-    condition: and(eq('${{ parameters.env}', 'DataWarehouse'), eq('${{ parameters.skip_deployment }}', 'false'))
+        value: "func-harp-data-sync"
+    condition: eq('${{ parameters.skip_deployment }}', 'false')
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
