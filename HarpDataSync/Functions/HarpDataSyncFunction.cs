@@ -17,7 +17,7 @@ namespace OldIrasSyncProjectData.Functions
         }
 
         [Function("func-harp-data-sync")]
-        public async Task<IActionResult> Run([TimerTrigger("%SyncTimerSchedule%", RunOnStartup = false, UseMonitor = true)] TimerInfo myTimer)
+        public async Task<IActionResult> Run([TimerTrigger("%HARPSyncTimerSchedule%", RunOnStartup = false, UseMonitor = true)] TimerInfo myTimer)
         {
             var syncSucceeded = await _service.SyncIrasProjectData();
 
