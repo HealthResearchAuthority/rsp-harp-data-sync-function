@@ -50,7 +50,7 @@ variables:
     value: "HarpDataSync.csproj"
   - name: buildConfiguration
     value: "Release"
-  - name: service_connection
+  - name: ARM Connection DW
     ${{ if eq(parameters.env, 'dev') }}:
       value: "ARM Dev Connection New"
     ${{ if eq(parameters.env, 'systemtest_auto') }}:
