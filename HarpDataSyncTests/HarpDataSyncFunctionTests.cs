@@ -1,9 +1,5 @@
-﻿using System.Net;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using OldIrasSyncProjectData.Application.Contracts.Services;
