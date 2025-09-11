@@ -10,6 +10,7 @@ trigger:
   paths:
     include:
       - HarpDataSync/**
+      - HarpDataSyncTest/**
 
 parameters:
   - name: devops_library_branch
