@@ -1,7 +1,7 @@
 name: $(Build.DefinitionName)_$(Build.SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
 pool:
-  vmImage: "Ubuntu-latest"
+  name: "rsp-manageddevopspool"
 
 trigger:
   branches:
@@ -10,20 +10,9 @@ trigger:
   paths:
     include:
       - HarpDataSync/**
+      - HarpDataSyncTest/**
 
 parameters:
-  - name: env
-    displayName: Environment
-    type: string
-    default: dev
-    values:
-      - dev
-      - systemtest_manual
-      - systemtest_auto
-      - uat
-      - pre_prod
-      - production
-
   - name: devops_library_branch
     displayName: DevOps Library Branch
     type: string
@@ -51,12 +40,7 @@ variables:
   - name: buildConfiguration
     value: "Release"
   - name: service_connection
-    ${{ if eq(parameters.env, 'dev') }}:
-      value: "ARM Dev Connection New"
-    ${{ if eq(parameters.env, 'systemtest_auto') }}:
-      value: "ARM Automated Test Connection"  
-    ${{ if eq(parameters.env, 'systemtest_manual') }}:
-      value: "ARM Manual Test Connection"
+    value: "ARM Connection DW"    
 
   - name: appSettingsJson
     value: |
@@ -95,7 +79,7 @@ resources:
 stages:
   - stage: Build
     displayName: "Build Stage"
-    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'true'))
+    condition: eq('${{ parameters.skip_deployment }}', 'true')
     jobs:
       - template: jobs/build.yaml@library
         parameters:
@@ -106,74 +90,16 @@ stages:
           install_aspire: true
           service_defaults_repo: service_defaults
 
-  - stage: dev
-    displayName: "Deploy to Development"
+  - stage: DataWarehouse
+    displayName: "Deploy to DataWarehouse"
     variables:
-      - group: 'DevelopmentEnvironment'
+      - group: 'DataWarehouseEnvironment'
       - name: FunctionAppName
-        value: "func-harp-data-sync-dev"
-    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'false'))
+        value: "func-harp-data-sync"
+    condition: eq('${{ parameters.skip_deployment }}', 'false')
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
           install_aspire: true
           service_defaults_repo: service_defaults
           appSettings: $(appSettingsJson)
- 
-  - stage: systemtest_auto
-    variables: 
-      - group: 'STAutoEnvironment'
-      - name: FunctionAppName
-        value: "func-harp-data-sync-dev-automationtest"
-    condition: eq('${{ parameters.env }}', 'systemtest_auto')
-    jobs:
-      - template: jobs/deployFunction.yaml@library
-        parameters:
-          install_aspire: true
-          service_defaults_repo: service_defaults
-          appSettings: $(appSettingsJson)
-
-  - stage: systemtest_manual
-    variables: 
-      - group: 'STManualEnvironment'
-      - name: FunctionAppName
-        value: "func-harp-data-sync-dev-manualtest"
-    condition: eq('${{ parameters.env }}', 'systemtest_manual')
-    jobs:
-      - template: jobs/deployFunction.yaml@library
-        parameters:
-          install_aspire: true
-          service_defaults_repo: service_defaults
-          appSettings: $(appSettingsJson)
-
-  - stage: system_integration_test
-    displayName: "System Integration Test"
-    jobs:
-      - job: IntegrationTest
-        steps:
-          - script: |
-              echo 'env: system integration test'
-
-  - stage: uat
-    displayName: "User Acceptance Testing"
-    jobs:
-      - job: UAT
-        steps:
-          - script: |
-              echo 'env: uat'
-
-  - stage: pre_prod
-    displayName: "Pre-Production"
-    jobs:
-      - job: PreProd
-        steps:
-          - script: |
-              echo 'env: pre prod'
-
-  - stage: production
-    displayName: "Production"
-    jobs:
-      - job: Production
-        steps:
-          - script: |
-              echo 'env: production'
