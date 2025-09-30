@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.Contracts.Services;
+using OldIrasSyncProjectData.Functions;
 using OldIrasSyncProjectData.Services;
 
 namespace OldIrasSyncProjectData.Startup;
@@ -40,6 +41,7 @@ public static class Program
 
         builder.Services.AddScoped<IHarpDataSyncService, HarpDataSyncService>();
         builder.Services.AddScoped<IHarpProjectDataRepository, HarpProjectDataRepository>();
+        builder.Services.AddScoped<HarpDataSyncFunction>();
 
         builder.Services.AddHttpContextAccessor();
 
