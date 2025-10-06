@@ -1,9 +1,11 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.SqlClient;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.DTO;
 
 namespace HarpDataSync.Infrastructure.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class OldIrasProjectRepository : IOldIrasProjectRepository
     {
         private readonly string _connectionString;
