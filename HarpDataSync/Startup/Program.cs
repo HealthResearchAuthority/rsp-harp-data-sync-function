@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
+using HarpDataSync.Application.Constants;
 using HarpDataSync.Infrastructure;
 using HarpDataSync.Infrastructure.Repositories;
+using HarpDataSync.Startup.Configuration;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,11 +29,13 @@ public static class Program
             .AddJsonFile("local.settings.json", true)
             .AddEnvironmentVariables();
 
+        builder.Services.AddHeaderPropagation(options => options.Headers.Add(RequestHeadersKeys.CorrelationId));
+
         // register dependencies
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton<IOldIrasProjectRepository>(sp =>
         {
-            return new OldIrasProjectRepository(config.GetConnectionString("OldIrasConnectionString")!);
+            return new OldIrasProjectRepository(config.GetConnectionString("BGOHARPConnectionString")!);
         });
 
         builder.Services.AddDbContext<HarpProjectDataDbContext>(options =>
@@ -44,6 +48,13 @@ public static class Program
         builder.Services.AddScoped<HarpDataSyncFunction>();
 
         builder.Services.AddHttpContextAccessor();
+
+        if (!builder.Environment.IsDevelopment())
+        {
+            // Load configuration from Azure App Configuration
+
+            builder.Services.AddAzureAppConfiguration(config);
+        }
 
         var app = builder.Build();
 
