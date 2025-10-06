@@ -1,9 +1,11 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.SqlClient;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.DTO;
 
 namespace HarpDataSync.Infrastructure.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class OldIrasProjectRepository : IOldIrasProjectRepository
     {
         private readonly string _connectionString;
@@ -40,7 +42,8 @@ namespace HarpDataSync.Infrastructure.Repositories
                     AND app.PostApprovalStateText IN ('Halted Temporary','Not Started','Started','Notification to Suspend')
                     AND app.CommitteeID IN (316, 313, 315, 214)
                     AND studytype.StudyType NOT IN ('Research Tissue Bank','Research Database')
-                    AND app.StudyTypeID IN (6)";
+                    AND app.StudyTypeID IN (6)
+                    AND app.RefIRASProjectID <> ''";
 
                 using (var command = new SqlCommand(sql, connection))
                 {
@@ -48,15 +51,22 @@ namespace HarpDataSync.Infrastructure.Repositories
                     {
                         while (await reader.ReadAsync())
                         {
+                            if (!int.TryParse(reader["IRAS_ID"]?.ToString(), out var irasId))
+                                continue;
+
+                            int? recId = int.TryParse(reader["Rec_ID"]?.ToString(), out var parsedRecId) ? parsedRecId : null;
+                            DateTime dateRegistered = DateTime.TryParse(reader["DateRegistered"]?.ToString(), out var parsedDate)
+                                ? parsedDate
+                                : DateTime.MinValue;
+
                             records.Add(new HarpProjectRecord
                             {
-                                Id = "", // Auto assigned by HarpDataProject database
-                                IrasId = Convert.ToInt32(reader["IRAS_ID"]),
-                                RecID = Convert.ToInt32(reader["Rec_ID"]),
+                                IrasId = irasId,
+                                RecID = recId,
                                 RecName = reader["Rec_Name"]?.ToString(),
                                 ShortStudyTitle = reader["Short_Study_Title"]?.ToString(),
                                 StudyDecision = reader["Study_Decision"]?.ToString(),
-                                DateRegistered = Convert.ToDateTime(reader["DateRegistered"]),
+                                DateRegistered = dateRegistered,
                                 FullResearchTitle = reader["Full Research Title"]?.ToString()
                             });
                         }

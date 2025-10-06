@@ -1,10 +1,12 @@
 ﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.DTO;
 
 namespace HarpDataSync.Infrastructure.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class HarpProjectDataRepository : IHarpProjectDataRepository
     {
         private readonly HarpProjectDataDbContext _context;
@@ -44,7 +46,7 @@ namespace HarpDataSync.Infrastructure.Repositories
                     // INSERT
                     var newRecord = new HarpProjectRecord
                     {
-                        Id = "", // Temp Id will be updated by database.
+                        Id = Guid.NewGuid().ToString(),
                         IrasId = source.IrasId,
                         DateRegistered = source.DateRegistered,
                         RecID = source.RecID,
