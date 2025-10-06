@@ -41,6 +41,7 @@ public static class Program
         builder.Services.AddDbContext<HarpProjectDataDbContext>(options =>
         {
             options.UseSqlServer(config.GetConnectionString("HarpProjectDataConnectionString"));
+            options.EnableSensitiveDataLogging();
         });
 
         builder.Services.AddScoped<IHarpDataSyncService, HarpDataSyncService>();

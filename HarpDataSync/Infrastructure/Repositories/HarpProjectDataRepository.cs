@@ -44,7 +44,7 @@ namespace HarpDataSync.Infrastructure.Repositories
                     // INSERT
                     var newRecord = new HarpProjectRecord
                     {
-                        Id = "", // Temp Id will be updated by database.
+                        Id = Guid.NewGuid().ToString(),
                         IrasId = source.IrasId,
                         DateRegistered = source.DateRegistered,
                         RecID = source.RecID,

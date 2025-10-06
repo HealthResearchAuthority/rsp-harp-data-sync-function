@@ -61,7 +61,6 @@ namespace HarpDataSync.Infrastructure.Repositories
 
                             records.Add(new HarpProjectRecord
                             {
-                                Id = "", // Auto assigned by HarpDataProject database
                                 IrasId = irasId,
                                 RecID = recId,
                                 RecName = reader["Rec_Name"]?.ToString(),
