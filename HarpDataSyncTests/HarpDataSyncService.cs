@@ -3,6 +3,7 @@ using Moq;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.DTO;
 using OldIrasSyncProjectData.Services;
+using Shouldly;
 
 namespace HarpDataSyncTests;
 
@@ -65,7 +66,7 @@ public class HarpDataSyncServiceTests
         var result = await _service.SyncIrasProjectData();
 
         // Assert
-        Assert.True(result);
+        result.ShouldBeTrue();
     }
 
     [Fact]
@@ -89,7 +90,7 @@ public class HarpDataSyncServiceTests
         var result = await _service.SyncIrasProjectData();
 
         // Assert
-        Assert.False(result);
+        result.ShouldBeFalse();
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Error,
