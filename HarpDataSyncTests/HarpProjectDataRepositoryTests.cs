@@ -2,6 +2,7 @@
 using HarpDataSync.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using OldIrasSyncProjectData.Application.DTO;
+using Shouldly;
 
 namespace HarpDataSyncTests;
 
@@ -61,11 +62,11 @@ public class HarpProjectDataRepository_UpdateTests
 
         // Assert
         var result = await _context.HarpProjectRecords.FirstOrDefaultAsync(r => r.IrasId == 1001);
-        Assert.NotNull(result);
-        Assert.Equal("Updated", result!.RecName);
-        Assert.Equal("Approved", result.StudyDecision);
-        Assert.Equal("Updated Full Title", result.FullResearchTitle);
-        Assert.True(result.LastSyncDate > new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        result.ShouldNotBeNull();
+        result!.RecName.ShouldBe("Updated");
+        result.StudyDecision.ShouldBe("Approved");
+        result.FullResearchTitle.ShouldBe("Updated Full Title");
+        result.LastSyncDate.ShouldBeGreaterThan(new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -89,8 +90,8 @@ public class HarpProjectDataRepository_UpdateTests
 
         // Assert
         var result = await _context.HarpProjectRecords.FirstOrDefaultAsync(r => r.IrasId == 1001);
-        Assert.NotNull(result);
-        Assert.NotEqual("ShouldNotUpdate", result!.RecName);
+        result.ShouldNotBeNull();
+        result!.RecName.ShouldNotBe("ShouldNotUpdate");
     }
 
     [Fact]
@@ -115,8 +116,8 @@ public class HarpProjectDataRepository_UpdateTests
 
         // Assert
         var result = await _context.HarpProjectRecords.FirstOrDefaultAsync(r => r.IrasId == 2002);
-        Assert.NotNull(result);
-        Assert.Equal("New Record", result!.RecName);
-        Assert.Equal("New Study", result.ShortStudyTitle);
+        result.ShouldNotBeNull();
+        result!.RecName.ShouldBe("New Record");
+        result.ShortStudyTitle.ShouldBe("New Study");
     }
 }

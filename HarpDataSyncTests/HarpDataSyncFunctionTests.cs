@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using OldIrasSyncProjectData.Application.Contracts.Services;
 using OldIrasSyncProjectData.Functions;
+using Shouldly;
 
 namespace HarpDataSyncTests;
 
@@ -26,8 +27,8 @@ public class HarpDataSyncFunctionTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(200, okResult.StatusCode);
-        Assert.Equal("Iras Projects Data Sync Succeeded", okResult.Value);
+        okResult.StatusCode.ShouldBe(200);
+        okResult.Value.ShouldBe("Iras Projects Data Sync Succeeded");
 
         loggerMock.Verify(
             x => x.Log(
@@ -56,7 +57,7 @@ public class HarpDataSyncFunctionTests
 
         // Assert
         var objectResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, objectResult.StatusCode);
+        objectResult.StatusCode.ShouldBe(500);
 
         loggerMock.Verify(
             x => x.Log(

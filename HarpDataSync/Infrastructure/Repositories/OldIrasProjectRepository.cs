@@ -47,6 +47,8 @@ namespace HarpDataSync.Infrastructure.Repositories
 
                 using (var command = new SqlCommand(sql, connection))
                 {
+                    command.CommandTimeout = 300;
+
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
