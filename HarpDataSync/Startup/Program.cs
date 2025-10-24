@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using HarpDataSync.Application.Constants;
 using HarpDataSync.Infrastructure;
 using HarpDataSync.Infrastructure.Repositories;
@@ -25,9 +26,19 @@ public static class Program
 
         var config = builder.Configuration;
 
-        config
-            .AddJsonFile("local.settings.json", true)
-            .AddEnvironmentVariables();
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Configuration.AddUserSecrets(Assembly.GetAssembly(typeof(Program))!);
+        }
+
+        if (!builder.Environment.IsDevelopment())
+        {
+            // Load configuration from Azure App Configuration
+
+            builder.Services.AddAzureAppConfiguration(config);
+        }
+
+        config.AddEnvironmentVariables();
 
         builder.Services.AddHeaderPropagation(options => options.Headers.Add(RequestHeadersKeys.CorrelationId));
 
@@ -49,13 +60,6 @@ public static class Program
         builder.Services.AddScoped<HarpDataSyncFunction>();
 
         builder.Services.AddHttpContextAccessor();
-
-        if (!builder.Environment.IsDevelopment())
-        {
-            // Load configuration from Azure App Configuration
-
-            builder.Services.AddAzureAppConfiguration(config);
-        }
 
         var app = builder.Build();
 
