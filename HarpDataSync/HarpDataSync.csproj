@@ -5,9 +5,14 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>e78f51a4-40a3-4750-83be-5d559a616a5f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Azure.Data.Tables" Version="12.10.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.22.0" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.22.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,6 +32,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.10" />
     <PackageReference Include="XunitXml.TestLogger" Version="6.1.0" />
   </ItemGroup>
   <ItemGroup>
