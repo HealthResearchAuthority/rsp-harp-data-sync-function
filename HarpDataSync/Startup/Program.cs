@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using HarpDataSync.Application.Constants;
 using HarpDataSync.Infrastructure;
 using HarpDataSync.Infrastructure.Repositories;
@@ -22,44 +21,70 @@ public static class Program
     public static async Task Main(string[] args)
     {
         var builder = FunctionsApplication.CreateBuilder(args);
+
         builder.ConfigureFunctionsWebApplication();
 
         var config = builder.Configuration;
+        var services = builder.Services;
 
-        if (builder.Environment.IsDevelopment())
-        {
-            builder.Configuration.AddUserSecrets(Assembly.GetAssembly(typeof(Program))!);
-        }
+        // NOTE: When using ConfigureFunctionsWebApplication, both local.settings.json and User Secrets
+        // are automatically added to the configuration. However, there is a bug
+        // https://github.com/Azure/azure-functions-dotnet-worker/issues/2230
+        // where the order of configuration providers is incorrect, causing User Secrets
+        // overriden by local.settings.json values. The work around is
+        // to not define configuration in local.settings.json when using User Secrets.
+
+        // Also, there is no need to manually add the following as they are added automatically
+        // by ConfigureFunctionsWebApplication. Follwoing code is just left here for reference.
+
+        ///if (builder.Environment.IsDevelopment())
+        ///{
+        ///    config.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+        ///    config.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+        ///}
 
         if (!builder.Environment.IsDevelopment())
         {
             // Load configuration from Azure App Configuration
-
-            builder.Services.AddAzureAppConfiguration(config);
+            services.AddAzureAppConfiguration(config);
         }
 
         config.AddEnvironmentVariables();
 
-        builder.Services.AddHeaderPropagation(options => options.Headers.Add(RequestHeadersKeys.CorrelationId));
+        // check if we have configuration strings
+        var bgoharpConnString = config.GetConnectionString("BGOHARPConnectionString");
+        var harpProjectDataConnString = config.GetConnectionString("HarpProjectDataConnectionString");
+
+        if (string.IsNullOrWhiteSpace(bgoharpConnString))
+        {
+            throw new InvalidOperationException("BGOHARPConnectionString is not configured.");
+        }
+
+        if (string.IsNullOrWhiteSpace(harpProjectDataConnString))
+        {
+            throw new InvalidOperationException("HarpProjectDataConnectionString is not configured.");
+        }
+
+        services.AddHeaderPropagation(options => options.Headers.Add(RequestHeadersKeys.CorrelationId));
 
         // register dependencies
-        builder.Services.AddMemoryCache();
-        builder.Services.AddSingleton<IOldIrasProjectRepository>(sp =>
+        services.AddMemoryCache();
+        services.AddSingleton<IOldIrasProjectRepository>(sp =>
         {
             return new OldIrasProjectRepository(config.GetConnectionString("BGOHARPConnectionString")!);
         });
 
-        builder.Services.AddDbContext<HarpProjectDataDbContext>(options =>
+        services.AddDbContext<HarpProjectDataDbContext>(options =>
         {
             options.UseSqlServer(config.GetConnectionString("HarpProjectDataConnectionString"));
             options.EnableSensitiveDataLogging();
         });
 
-        builder.Services.AddScoped<IHarpDataSyncService, HarpDataSyncService>();
-        builder.Services.AddScoped<IHarpProjectDataRepository, HarpProjectDataRepository>();
-        builder.Services.AddScoped<HarpDataSyncFunction>();
+        services.AddScoped<IHarpDataSyncService, HarpDataSyncService>();
+        services.AddScoped<IHarpProjectDataRepository, HarpProjectDataRepository>();
+        services.AddScoped<HarpDataSyncFunction>();
 
-        builder.Services.AddHttpContextAccessor();
+        services.AddHttpContextAccessor();
 
         var app = builder.Build();
 
