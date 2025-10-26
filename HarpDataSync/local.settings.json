@@ -6,7 +6,6 @@
     "HARPSyncTimerSchedule": "0 0 1 * * *"
   },
   "ConnectionStrings": {
-    "BGOHARPConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=TestServiceOldIras;Trusted_Connection=True;",
     "HarpProjectDataConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=HarpProjectData;Trusted_Connection=True;"
   }
 }
