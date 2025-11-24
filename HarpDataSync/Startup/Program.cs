@@ -54,6 +54,7 @@ public static class Program
         // check if we have configuration strings
         var bgoharpConnString = config.GetConnectionString("BGOHARPConnectionString");
         var harpProjectDataConnString = config.GetConnectionString("HarpProjectDataConnectionString");
+        var getProjectRecordsQuery = config.GetSection("HarpQueries")["GetProjectRecordsQuery"];
 
         if (string.IsNullOrWhiteSpace(bgoharpConnString))
         {
@@ -65,13 +66,21 @@ public static class Program
             throw new InvalidOperationException("HarpProjectDataConnectionString is not configured.");
         }
 
+        if (string.IsNullOrWhiteSpace(getProjectRecordsQuery))
+        {
+            throw new InvalidOperationException("GetProjectRecordsQuery is not configured.");
+        }
+
         services.AddHeaderPropagation(options => options.Headers.Add(RequestHeadersKeys.CorrelationId));
 
         // register dependencies
         services.AddMemoryCache();
         services.AddSingleton<IOldIrasProjectRepository>(sp =>
         {
-            return new OldIrasProjectRepository(config.GetConnectionString("BGOHARPConnectionString")!);
+            return new OldIrasProjectRepository(
+                    config.GetConnectionString("BGOHARPConnectionString")!,
+                    config.GetSection("HarpQueries")["GetProjectRecordsQuery"]!
+                );
         });
 
         services.AddDbContext<HarpProjectDataDbContext>(options =>

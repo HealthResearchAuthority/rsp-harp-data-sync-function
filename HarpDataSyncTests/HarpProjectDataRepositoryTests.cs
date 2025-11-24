@@ -31,10 +31,10 @@ public class HarpProjectDataRepository_UpdateTests
             IrasId = 1001,
             RecID = 1,
             RecName = "Initial",
-            ShortStudyTitle = "Initial Title",
+            ShortProjectTitle = "Initial Title",
             StudyDecision = "Pending",
             DateRegistered = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            FullResearchTitle = "Initial Full Title",
+            FullProjectTitle = "Initial Full Title",
             LastSyncDate = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         });
 
@@ -50,10 +50,10 @@ public class HarpProjectDataRepository_UpdateTests
             IrasId = 1001,
             RecID = 2,
             RecName = "Updated",
-            ShortStudyTitle = "Updated Title",
+            ShortProjectTitle = "Updated Title",
             StudyDecision = "Approved",
             DateRegistered = new DateTime(2023, 5, 1, 0, 0, 0, DateTimeKind.Utc),
-            FullResearchTitle = "Updated Full Title",
+            FullProjectTitle = "Updated Full Title",
             LastSyncDate = new DateTime(2023, 5, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
@@ -65,7 +65,7 @@ public class HarpProjectDataRepository_UpdateTests
         result.ShouldNotBeNull();
         result!.RecName.ShouldBe("Updated");
         result.StudyDecision.ShouldBe("Approved");
-        result.FullResearchTitle.ShouldBe("Updated Full Title");
+        result.FullProjectTitle.ShouldBe("Updated Full Title");
         result.LastSyncDate.ShouldBeGreaterThan(new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc));
     }
 
@@ -78,10 +78,10 @@ public class HarpProjectDataRepository_UpdateTests
             IrasId = 1001,
             RecID = 3,
             RecName = "ShouldNotUpdate",
-            ShortStudyTitle = "Old Title",
+            ShortProjectTitle = "Old Title",
             StudyDecision = "Rejected",
             DateRegistered = new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            FullResearchTitle = "Old Full Title",
+            FullProjectTitle = "Old Full Title",
             LastSyncDate = new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
@@ -104,10 +104,10 @@ public class HarpProjectDataRepository_UpdateTests
             IrasId = 2002,
             RecID = 5,
             RecName = "New Record",
-            ShortStudyTitle = "New Study",
+            ShortProjectTitle = "New Study",
             StudyDecision = "Approved",
             DateRegistered = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            FullResearchTitle = "New Full Title",
+            FullProjectTitle = "New Full Title",
             LastSyncDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
@@ -118,6 +118,6 @@ public class HarpProjectDataRepository_UpdateTests
         var result = await _context.HarpProjectRecords.FirstOrDefaultAsync(r => r.IrasId == 2002);
         result.ShouldNotBeNull();
         result!.RecName.ShouldBe("New Record");
-        result.ShortStudyTitle.ShouldBe("New Study");
+        result.ShortProjectTitle.ShouldBe("New Study");
     }
 }
