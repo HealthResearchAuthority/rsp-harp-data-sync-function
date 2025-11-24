@@ -7,5 +7,8 @@
   },
   "ConnectionStrings": {
     "HarpProjectDataConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=HarpProjectData;Trusted_Connection=True;"
+  },
+  "HarpQueries": {
+    "GetProjectRecordsQuery": ""
   }
 }

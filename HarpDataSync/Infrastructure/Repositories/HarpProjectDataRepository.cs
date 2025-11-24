@@ -35,9 +35,9 @@ namespace HarpDataSync.Infrastructure.Repositories
                         existing.DateRegistered = source.DateRegistered;
                         existing.RecID = source.RecID;
                         existing.RecName = source.RecName;
-                        existing.ShortStudyTitle = source.ShortStudyTitle;
+                        existing.ShortProjectTitle = source.ShortProjectTitle;
                         existing.StudyDecision = source.StudyDecision;
-                        existing.FullResearchTitle = source.FullResearchTitle;
+                        existing.FullProjectTitle = source.FullProjectTitle;
                         existing.LastSyncDate = now;
                     }
                 }
@@ -51,9 +51,9 @@ namespace HarpDataSync.Infrastructure.Repositories
                         DateRegistered = source.DateRegistered,
                         RecID = source.RecID,
                         RecName = source.RecName,
-                        ShortStudyTitle = source.ShortStudyTitle,
+                        ShortProjectTitle = source.ShortProjectTitle,
                         StudyDecision = source.StudyDecision,
-                        FullResearchTitle = source.FullResearchTitle,
+                        FullProjectTitle = source.FullProjectTitle,
                         LastSyncDate = now
                     };
 
