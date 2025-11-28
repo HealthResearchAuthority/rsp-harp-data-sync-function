@@ -13,6 +13,19 @@ trigger:
       - HarpDataSyncTest/**
 
 parameters:
+  - name: env
+    displayName: Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - datawarehouse
+      - systemtest_manual
+      - systemtest_auto
+      - uat
+      - pre_prod
+      - production
+
   - name: devops_library_branch
     displayName: DevOps Library Branch
     type: string
@@ -40,7 +53,20 @@ variables:
   - name: buildConfiguration
     value: "Release"
   - name: service_connection
-    value: "ARM Connection DW"    
+    ${{ if eq(parameters.env, 'datawarehouse') }}:
+      value: "ARM Connection DW"
+    ${{ if eq(parameters.env, 'dev') }}:
+      value: "ARM Dev Connection New"
+    ${{ if eq(parameters.env, 'systemtest_auto') }}:
+      value: "ARM Automated Test Connection"  
+    ${{ if eq(parameters.env, 'systemtest_manual') }}:
+      value: "ARM Manual Test Connection"
+    ${{ if eq(parameters.env, 'uat') }}:
+        value: "ARM UAT Connection"
+    ${{ if eq(parameters.env, 'pre_prod') }}:
+        value: "ARM PreProd Connection"
+    ${{ if eq(parameters.env, 'production') }}:
+        value: "ARM Production Connection" 
 
   - name: appSettingsJson
     value: |
@@ -88,7 +114,77 @@ stages:
       - group: 'DataWarehouseEnvironment'
       - name: FunctionAppName
         value: "func-harp-data-sync"
-    condition: eq('${{ parameters.skip_deployment }}', 'false')
+    condition: and(eq('${{ parameters.env }}', 'datawarehouse'), eq('${{ parameters.skip_deployment }}', 'false')
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+
+  - stage: dev
+    displayName: "Deploy to Development"
+    variables: 
+      - group: 'DevelopmentEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-dev"
+    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'false'))
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+          
+  - stage: systemtest_auto
+    variables: 
+      - group: 'STAutoEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-automationtest"
+    condition: eq('${{ parameters.env }}', 'systemtest_auto')
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+          
+  - stage: systemtest_manual
+    variables: 
+      - group: 'STManualEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-manualtest"
+    condition: eq('${{ parameters.env }}', 'systemtest_manual')
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+
+  - stage: uat
+    displayName: "Deploy to UAT"
+    variables: 
+      - group: 'UATEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-uat"
+    condition: and(eq('${{ parameters.env }}', 'uat'), eq('${{ parameters.skip_deployment }}', 'false'))
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+
+  - stage: pre_prod
+    displayName: "Deploy to PreProd"
+    variables: 
+      - group: 'PreProdEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-preprod"
+    condition: and(eq('${{ parameters.env }}', 'pre_prod'), eq('${{ parameters.skip_deployment }}', 'false'))
+    jobs:
+      - template: jobs/deployFunction.yaml@library
+        parameters:
+          appSettings: $(appSettingsJson)
+
+  - stage: production
+    displayName: "Deploy to Prod"
+    variables: 
+      - group: 'ProductionEnvironment'
+      - name: FunctionAppName
+        value: "func-harp-data-sync-prod"
+    condition: and(eq('${{ parameters.env }}', 'production'), eq('${{ parameters.skip_deployment }}', 'false'))
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
