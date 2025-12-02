@@ -99,7 +99,7 @@ resources:
 stages:
   - stage: Build
     displayName: "Build Stage"
-    condition: eq('${{ parameters.skip_deployment }}', 'true')
+    condition: and(eq('${{ parameters.env }}', 'dev'), eq('${{ parameters.skip_deployment }}', 'true'))
     jobs:
       - template: jobs/build.yaml@library
         parameters:
