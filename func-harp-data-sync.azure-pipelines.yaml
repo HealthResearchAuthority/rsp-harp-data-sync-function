@@ -114,7 +114,7 @@ stages:
       - group: 'DataWarehouseEnvironment'
       - name: FunctionAppName
         value: "func-harp-data-sync"
-    condition: and(eq('${{ parameters.env }}', 'datawarehouse'), eq('${{ parameters.skip_deployment }}', 'false')
+    condition: and(eq('${{ parameters.env }}', 'datawarehouse'), eq('${{ parameters.skip_deployment }}', 'false'))
     jobs:
       - template: jobs/deployFunction.yaml@library
         parameters:
