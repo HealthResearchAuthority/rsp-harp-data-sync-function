@@ -40,10 +40,10 @@ namespace HarpDataSync.Infrastructure.Repositories
                 WHERE app.ParentApplicationID IS NULL
                     AND app.ApplicationDecisionText IN ('Favourable Opinion', 'Further Information Favourable Opinion')
                     AND app.PostApprovalStateText IN ('Halted Temporary','Not Started','Started','Notification to Suspend')
-                    AND app.CommitteeID IN (316, 313, 315, 214)
+                    AND app.CommitteeID IN (316, 313, 315, 314)
                     AND studytype.StudyType NOT IN ('Research Tissue Bank','Research Database')
                     AND app.StudyTypeID IN (6)
-                    AND app.RefIRASProjectID <> ''";
+                    AND app.RefIRASProjectID is not null and app.RefIRASProjectID != ''";
 
                 using (var command = new SqlCommand(sql, connection))
                 {
