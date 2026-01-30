@@ -54,7 +54,9 @@ namespace HarpDataSync.Infrastructure.Repositories
                         while (await reader.ReadAsync())
                         {
                             if (!int.TryParse(reader["IRAS_ID"]?.ToString(), out var irasId))
+                            {
                                 continue;
+                            }
 
                             int? recId = int.TryParse(reader["Rec_ID"]?.ToString(), out var parsedRecId) ? parsedRecId : null;
                             DateTime dateRegistered = DateTime.TryParse(reader["DateRegistered"]?.ToString(), out var parsedDate)
