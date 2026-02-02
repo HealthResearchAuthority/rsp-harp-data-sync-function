@@ -25,11 +25,12 @@ namespace HarpDataSync.Infrastructure.Repositories
             var irasIds = oldIrasProjectRecords.Select(r => r.IrasId).ToList();
 
             var existingRecords = await _context.HarpProjectRecords
-                .Where(p => irasIds.Contains(p.IrasId))
-                .ToDictionaryAsync(p => p.IrasId);
+                    .Where(p => irasIds.Contains(p.IrasId))
+                    .ToDictionaryAsync(p => p.IrasId)
+                    ?? new Dictionary<int, HarpProjectRecord>();
 
-            var inputCount = oldIrasProjectRecords?.Count() ?? 0;
-            var existingCount = existingRecords?.Count ?? 0;
+            var inputCount = oldIrasProjectRecords.Count();
+            var existingCount = existingRecords.Count;
 
             _logger.LogInformation("HARP sync: received {InputCount} records; {ExistingCount} match existing rows.",
                 inputCount, existingCount);
