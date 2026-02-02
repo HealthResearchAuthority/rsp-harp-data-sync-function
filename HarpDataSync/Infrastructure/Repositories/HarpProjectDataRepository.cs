@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.DTO;
 
@@ -10,10 +11,12 @@ namespace HarpDataSync.Infrastructure.Repositories
     public class HarpProjectDataRepository : IHarpProjectDataRepository
     {
         private readonly HarpProjectDataDbContext _context;
+        private readonly ILogger<HarpProjectDataRepository> _logger;
 
-        public HarpProjectDataRepository(HarpProjectDataDbContext context)
+        public HarpProjectDataRepository(HarpProjectDataDbContext context, ILogger<HarpProjectDataRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task UpdateProjectRecords(IEnumerable<HarpProjectRecord> oldIrasProjectRecords)
@@ -24,6 +27,14 @@ namespace HarpDataSync.Infrastructure.Repositories
             var existingRecords = await _context.HarpProjectRecords
                 .Where(p => irasIds.Contains(p.IrasId))
                 .ToDictionaryAsync(p => p.IrasId);
+
+            var inputCount = oldIrasProjectRecords?.Count() ?? 0;
+            var existingCount = existingRecords?.Count ?? 0;
+
+            _logger.LogInformation("HARP sync: received {InputCount} records; {ExistingCount} match existing rows.",
+                inputCount, existingCount);
+
+            int updated = 0, inserted = 0;
 
             foreach (var source in oldIrasProjectRecords)
             {
@@ -39,6 +50,7 @@ namespace HarpDataSync.Infrastructure.Repositories
                         existing.StudyDecision = source.StudyDecision;
                         existing.FullResearchTitle = source.FullResearchTitle;
                         existing.LastSyncDate = now;
+                        updated++;
                     }
                 }
                 else
@@ -56,12 +68,15 @@ namespace HarpDataSync.Infrastructure.Repositories
                         FullResearchTitle = source.FullResearchTitle,
                         LastSyncDate = now
                     };
-
+                    inserted++;
                     await _context.HarpProjectRecords.AddAsync(newRecord);
                 }
             }
 
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("HARP sync completed: inserted={Inserted}, updated={Updated}, totalProcessed={Total}.",
+                inserted, updated, inserted + updated);
         }
     }
 }
