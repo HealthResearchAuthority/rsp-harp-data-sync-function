@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.DTO;
 
@@ -9,10 +10,12 @@ namespace HarpDataSync.Infrastructure.Repositories
     public class OldIrasProjectRepository : IOldIrasProjectRepository
     {
         private readonly string _connectionString;
+        private readonly ILogger<OldIrasProjectRepository> _logger;
 
-        public OldIrasProjectRepository(string connectionString)
+        public OldIrasProjectRepository(string connectionString, ILogger<OldIrasProjectRepository> logger)
         {
             _connectionString = connectionString;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<HarpProjectRecord>> GetProjectRecords()
@@ -54,7 +57,10 @@ namespace HarpDataSync.Infrastructure.Repositories
                         while (await reader.ReadAsync())
                         {
                             if (!int.TryParse(reader["IRAS_ID"]?.ToString(), out var irasId))
+                            {
+                                _logger.LogWarning("Failed to parse IRAS_ID. Value received: '{Value}'. Row will be skipped.", reader["IRAS_ID"]);
                                 continue;
+                            }
 
                             int? recId = int.TryParse(reader["Rec_ID"]?.ToString(), out var parsedRecId) ? parsedRecId : null;
                             DateTime dateRegistered = DateTime.TryParse(reader["DateRegistered"]?.ToString(), out var parsedDate)
