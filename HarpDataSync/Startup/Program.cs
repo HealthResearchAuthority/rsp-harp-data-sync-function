@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using OldIrasSyncProjectData.Application.Contracts.Repositories;
 using OldIrasSyncProjectData.Application.Contracts.Services;
 using OldIrasSyncProjectData.Functions;
@@ -71,7 +72,9 @@ public static class Program
         services.AddMemoryCache();
         services.AddSingleton<IOldIrasProjectRepository>(sp =>
         {
-            return new OldIrasProjectRepository(config.GetConnectionString("BGOHARPConnectionString")!);
+            return new OldIrasProjectRepository(
+                config.GetConnectionString("BGOHARPConnectionString")!,
+                sp.GetRequiredService<ILogger<OldIrasProjectRepository>>());
         });
 
         services.AddDbContext<HarpProjectDataDbContext>(options =>

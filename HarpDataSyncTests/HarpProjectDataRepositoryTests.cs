@@ -1,6 +1,7 @@
 ﻿using HarpDataSync.Infrastructure;
 using HarpDataSync.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using OldIrasSyncProjectData.Application.DTO;
 using Shouldly;
 
@@ -18,7 +19,8 @@ public class HarpProjectDataRepository_UpdateTests
             .Options;
 
         _context = new HarpProjectDataDbContext(options);
-        _repository = new HarpProjectDataRepository(_context);
+        var logger = NullLogger<HarpProjectDataRepository>.Instance;
+        _repository = new HarpProjectDataRepository(_context, logger);
 
         SeedInitialData();
     }
